@@ -1,0 +1,29 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "ru.nern.carpetlantern.mixin",
+  "compatibilityLevel": "JAVA_17",
+  "mixins": [
+    "CommandsMixin$CounterCommandMixin",
+    "CommandsMixin$DistanceCommandMixin",
+    "CommandsMixin$DrawCommandMixin",
+    "CommandsMixin$InfoCommandMixin",
+    "CommandsMixin$LogCommandMixin",
+    "CommandsMixin$MobAICommandMixin",
+    "CommandsMixin$PerimeterInfoCommandMixin",
+    "CommandsMixin$PlayerCommandMixin",
+    "CommandsMixin$ProfileCommandMixin",
+    "CommandsMixin$SettingsManagerMixin",
+    "CommandsMixin$SpawnCommandMixin",
+    "CommandsMixin$TickCommandMixin",
+    "EntityPlayerMPFakeMixin",
+    "PlayerCommandMixin",
+    "ServerPlayNetworkHandlerMixin",
+    "UpdateSuppressionContextMixin"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

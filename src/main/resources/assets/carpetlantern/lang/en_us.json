@@ -1,0 +1,4 @@
+{
+  "carpet.rule.maxPlayerBotCap.desc": "Controls how many bots can player spawn without [carpet.unlimitedBots] permission.",
+  "carpet.rule.updateSuppressionMessageRange.desc": "Makes update suppression message display locally in range."
+}
