@@ -19,7 +19,7 @@ public class ServerPlayNetworkHandlerMixin {
     @Inject(method = "onDisconnected", at = @At("HEAD"))
     private void carpetlantern$decrementBotCap(CallbackInfo ci) {
         if(player instanceof EntityPlayerMPFake) {
-            String name = ((IPlayerAccessor)player).getSummonerName();
+            String name = ((IPlayerAccessor)player).carpetlantern$getSummonerName();
             if(name != null) {
                 BotCapStorage.decrement(name);
             }

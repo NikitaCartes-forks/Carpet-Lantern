@@ -6,11 +6,11 @@ import carpet.api.settings.Rule;
 import carpet.api.settings.Validator;
 import net.minecraft.server.command.ServerCommandSource;
 
-import static carpet.api.settings.RuleCategory.CREATIVE;
-import static carpet.api.settings.RuleCategory.FEATURE;
-import static carpettisaddition.CarpetTISAdditionSettings.TIS;
+import static carpet.api.settings.RuleCategory.*;
 
 public class CarpetLanternSettings {
+    public static final String LANTERN = "lantern";
+
     private static class MaxBotCapValidator extends Validator<Integer>
     {
         @Override
@@ -26,7 +26,7 @@ public class CarpetLanternSettings {
     @Rule(
             options = {"2", "4"},
             strict = false,
-            categories = CREATIVE,
+            categories = {LANTERN, FEATURE},
             validators = MaxBotCapValidator.class
     )
     public static int maxPlayerBotCap = 2;
@@ -34,7 +34,17 @@ public class CarpetLanternSettings {
     @Rule(
             options = {"-1", "64", "128"},
             strict = false,
-            categories = {TIS, FEATURE}
+            categories = {LANTERN, FEATURE}
     )
     public static int updateSuppressionMessageRange = -1;
+
+    @Rule(
+            categories = {LANTERN, FEATURE}
+    )
+    public static boolean clUseCarpetMessageFormat = true;
+
+    @Rule(
+            categories = {LANTERN, FEATURE}
+    )
+    public static boolean playerCommandBlockBotVerification = false;
 }

@@ -13,6 +13,7 @@ import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -46,9 +47,7 @@ public abstract class UpdateSuppressionContextMixin {
             MutableText message = Messenger.formatting(tr.tr("report_message", this.getMessageText()), Formatting.RED, Formatting.ITALIC);
             Logger logger = LoggerRegistry.getLogger("updateSuppressedCrashes");
             if (logger != null) {
-                logger.log(() -> {
-                    return new MutableText[]{message};
-                });
+                logger.log(() -> new MutableText[]{message});
                 Messenger.sendToConsole(message);
             } else {
                 broadcastLocal(message, pos, dimensionId);
@@ -57,14 +56,20 @@ public abstract class UpdateSuppressionContextMixin {
     }
 
     //Custom
+    @Unique
     private static void broadcastLocal(MutableText text, BlockPos pos, String dimensionId)
     {
         sendToConsole(text);
-        if (CarpetTISAdditionServer.minecraft_server != null)
-        {
+        if (CarpetTISAdditionServer.minecraft_server != null) {
             CarpetTISAdditionServer.minecraft_server.getPlayerManager().getPlayerList().forEach(player -> {
-                if(player.getEntityWorld().getDimensionKey().getValue().toString().toString().equals(dimensionId) && pos.isWithinDistance(player.getPos(), CarpetLanternSettings.updateSuppressionMessageRange))
-                    tell(player, text);
+                if(player.getEntityWorld().getDimensionKey().getValue().toString().toString().equals(dimensionId) && pos.isWithinDistance(player.getPos(), CarpetLanternSettings.updateSuppressionMessageRange)) {
+                    if(CarpetLanternSettings.clUseCarpetMessageFormat) {
+                        tell(player, text);
+                    }else {
+                        player.sendMessage(text);
+                    }
+                }
+
             });
         }
     }

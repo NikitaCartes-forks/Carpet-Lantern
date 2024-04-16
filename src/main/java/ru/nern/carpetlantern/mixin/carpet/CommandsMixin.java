@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern.mixin;
+package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.api.settings.SettingsManager;
 import carpet.commands.*;
@@ -72,9 +72,9 @@ public class CommandsMixin {
 
     @Mixin(value = PlayerCommand.class, remap = false)
     public static class PlayerCommandMixin {
-        @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
+        @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;", ordinal = 0))
         private static ArgumentBuilder carpetlantern$requirePerms(LiteralArgumentBuilder<ServerCommandSource> instance, Predicate<ServerCommandSource> predicate) {
-            return instance.requires(Permissions.require("carpet.player", 2));
+            return instance.requires(Permissions.require("carpet.player.root", 2));
         }
     }
 
