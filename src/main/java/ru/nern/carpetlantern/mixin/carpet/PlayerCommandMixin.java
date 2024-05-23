@@ -2,13 +2,11 @@ package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
-import io.github.quiltservertools.blockbotdiscord.extensions.linking.LinkingExtensionKt;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
@@ -20,7 +18,6 @@ import net.minecraft.util.Formatting;
 import net.minecraft.util.math.Vec2f;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.GameMode;
-import org.spongepowered.asm.mixin.Debug;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -43,10 +40,10 @@ public class PlayerCommandMixin {
     }
 
     //We're using illegal tricks here...
-    @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;then(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;",
-    ordinal = 24))
-    private static ArgumentBuilder carpetlantern$requirePermsAt(LiteralArgumentBuilder<ServerCommandSource> instance, ArgumentBuilder argumentBuilder) {
-        return instance.then(CommandManager.literal("at")).requires(Permissions.require("carpet.player.at", 2));
+    @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/CommandManager;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
+    ordinal = 31))
+    private static LiteralArgumentBuilder<ServerCommandSource> carpetlantern$requirePermsAt(String literal) {
+        return CommandManager.literal(literal).requires(Permissions.require("carpet.player.at", 2));
     }
 
     @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
