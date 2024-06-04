@@ -32,6 +32,14 @@ public class CarpetLanternSettings {
     public static int maxPlayerBotCap = 2;
 
     @Rule(
+            options = {"2", "4", "8"},
+            strict = false,
+            categories = {LANTERN, FEATURE},
+            validators = MaxBotCapValidator.class
+    )
+    public static int maxPlayerBotGlobalCap = 4;
+
+    @Rule(
             options = {"-1", "64", "128"},
             strict = false,
             categories = {LANTERN, FEATURE}

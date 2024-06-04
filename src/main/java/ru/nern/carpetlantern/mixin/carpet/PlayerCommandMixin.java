@@ -50,15 +50,28 @@ public class PlayerCommandMixin {
     private static void carpetlantern$botCapCheck(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir, @Local MinecraftServer server, @Local(ordinal = 0) GameProfile profile) {
         ServerCommandSource source = context.getSource();
         //Bot cap
-        if(source.isExecutedByPlayer() && !Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(source.getPlayer().getGameProfile().getName())){
-            if(CarpetLanternSettings.clUseCarpetMessageFormat) {
-                Messenger.m(source, "r You can't spawn more than ", "rb " +CarpetLanternSettings.maxPlayerBotCap + " ", "r players");
-            }else {
-                source.sendFeedback(() -> Text.literal("You can't spawn more than " + CarpetLanternSettings.maxPlayerBotCap + " players").formatted(Formatting.RED), false);
-            }
 
-            cir.setReturnValue(true);
-            return;
+        if(source.isExecutedByPlayer()) {
+            if (!Permissions.check(source, "carpet.ignoreGlobalBotCap", 2) && BotCapStorage.isCapReached()) {
+                if(CarpetLanternSettings.clUseCarpetMessageFormat) {
+                    Messenger.m(source, "r You can't spawn more than ", "rb " +CarpetLanternSettings.maxPlayerBotGlobalCap + " ", "r players globally");
+                }else {
+                    source.sendFeedback(() -> Text.literal("You can't spawn more than " + CarpetLanternSettings.maxPlayerBotGlobalCap + " players globally").formatted(Formatting.RED), false);
+                }
+
+                cir.setReturnValue(true);
+                return;
+            }
+            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(source.getPlayer().getGameProfile().getName())) {
+                if(CarpetLanternSettings.clUseCarpetMessageFormat) {
+                    Messenger.m(source, "r You can't spawn more than ", "rb " +CarpetLanternSettings.maxPlayerBotCap + " ", "r players");
+                }else {
+                    source.sendFeedback(() -> Text.literal("You can't spawn more than " + CarpetLanternSettings.maxPlayerBotCap + " players").formatted(Formatting.RED), false);
+                }
+
+                cir.setReturnValue(true);
+                return;
+            }
         }
         if(BlockBotIntegration.isPlayerWhitelisted(profile, server) && !source.hasPermissionLevel(2)) {
             if(CarpetLanternSettings.clUseCarpetMessageFormat) {
