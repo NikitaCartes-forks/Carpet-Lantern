@@ -6,7 +6,8 @@
   "name": "Carpet Lantern Mod",
   "description": "Modification for Carpet/TIS-Carpet made for Lantern X",
   "authors": [
-    "ForwarD NerN"
+    "ForwarD NerN",
+    "NikitaCartes"
   ],
 
   "license": "MIT",
@@ -27,9 +28,7 @@
     "minecraft": ">1.20",
     "carpet-tis-addition": "*",
     "carpet": "*",
-    "java": ">=17"
-  },
-  "suggests": {
-    "another-mod": "*"
+    "java": ">=17",
+    "fabric-permissions-api-v0": "*"
   }
 }
