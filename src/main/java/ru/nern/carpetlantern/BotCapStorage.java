@@ -1,37 +1,58 @@
 package ru.nern.carpetlantern;
 
-import it.unimi.dsi.fastutil.objects.Object2IntMap;
-import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import java.util.*;
 
 public class BotCapStorage {
-    public static Object2IntMap<String> BOT_MAP = new Object2IntOpenHashMap<>();
-    public static int BOT_NUMBER = 0;
+    private static final Set<Bot> BOTS = new HashSet<>();
+    private static int BOT_NUMBER = 0;
 
-    public static boolean isCapReachedFor(String playerName){
-        return BOT_MAP.containsKey(playerName) && BOT_MAP.getInt(playerName) >= CarpetLanternSettings.maxPlayerBotCap;
+    public static boolean isCapReachedFor(String playerName, int limit){
+        return BOTS.stream().filter(bot -> bot.getSummonerName().equals(playerName)).count() >= limit;
     }
 
     public static boolean isCapReached(){
         return BOT_NUMBER >= CarpetLanternSettings.maxPlayerBotGlobalCap;
     }
 
-    public static void increment(String playerName){
+    public static void increment(String playerName, String botName, boolean privateBot){
         BOT_NUMBER++;
-        BOT_MAP.put(playerName, BOT_MAP.getInt(playerName)+1);
+        Bot bot = new Bot(botName, playerName, privateBot);
+        BOTS.add(bot);
     }
 
-    public static void decrement(String playerName){
+    public static boolean canKill(String playerName, String botName){
+        // if bot is private, only the summoner can kill it
+        return BOTS.stream().filter(bot -> bot.getName().equals(botName)).findFirst()
+                .map(bot -> !bot.isPrivate() || bot.getSummonerName().equals(playerName)).orElse(false);
+    }
+
+    public static void decrement(String botName){
         BOT_NUMBER--;
-        int value = BOT_MAP.getInt(playerName)-1;
-        if(value == 0){
-            BOT_MAP.removeInt(playerName);
-        }else if (value > 0){
-            BOT_MAP.put(playerName, value);
-        }
+        BOTS.removeIf(bot -> bot.getName().equals(botName));
     }
 
-    public static int get(String playerName){
-        return BOT_MAP.getInt(playerName);
+    private static class Bot {
+        private final String botName;
+        private final String summonerName;
+        private final boolean privateBot;
+
+        public Bot(String botName, String summonerName, boolean privateBot) {
+            this.botName = botName;
+            this.summonerName = summonerName;
+            this.privateBot = privateBot;
+        }
+
+        public String getName() {
+            return botName;
+        }
+
+        public String getSummonerName() {
+            return summonerName;
+        }
+
+        public boolean isPrivate() {
+            return privateBot;
+        }
     }
 }
 

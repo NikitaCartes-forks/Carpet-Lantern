@@ -21,6 +21,18 @@ repositories {
 	}
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 	mavenCentral()
+
+	exclusiveContent {
+		forRepository {
+			maven {
+				name = "Modrinth"
+				url = "https://api.modrinth.com/maven"
+			}
+		}
+		filter {
+			includeGroup "maven.modrinth"
+		}
+	}
 }
 
 
@@ -33,10 +45,11 @@ dependencies {
 	modImplementation "me.lucko:fabric-permissions-api:0.2-SNAPSHOT"
 	modImplementation fileTree(dir: 'libs', includes: ['*.jar'])
 
-	modImplementation(annotationProcessor("io.github.llamalad7:mixinextras-common:0.3.5"))
+	include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:${mixinextras_version}")))
 	modImplementation "com.github.Fallen-Breath:conditional-mixin:${project.conditional_mixins_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 
+	modImplementation "maven.modrinth:carpet-tis-addition:${project.carpet_tis_addition_version}"
 	// Uncomment the following line to enable the deprecated Fabric API modules. 
 	// These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
 

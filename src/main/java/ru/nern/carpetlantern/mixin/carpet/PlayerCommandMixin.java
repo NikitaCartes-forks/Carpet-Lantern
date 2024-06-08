@@ -2,16 +2,21 @@ package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.authlib.GameProfile;
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
+import com.mojang.brigadier.tree.ArgumentCommandNode;
+import com.mojang.brigadier.tree.LiteralCommandNode;
+import me.lucko.fabric.api.permissions.v0.Options;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.CommandManager;
 import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
@@ -21,7 +26,6 @@ import net.minecraft.world.GameMode;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import ru.nern.carpetlantern.BotCapStorage;
@@ -29,21 +33,66 @@ import ru.nern.carpetlantern.CarpetLanternSettings;
 import ru.nern.carpetlantern.IPlayerAccessor;
 import ru.nern.carpetlantern.integration.BlockBotIntegration;
 
-import java.util.function.Predicate;
+import static net.minecraft.server.command.CommandManager.argument;
 
 //Checks if player can spawn anymore carpet bots.
 @Mixin(value = PlayerCommand.class, remap = false)
 public class PlayerCommandMixin {
-    @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;", ordinal = 1))
-    private static ArgumentBuilder carpetlantern$requirePermsIn(LiteralArgumentBuilder<ServerCommandSource> instance, Predicate<ServerCommandSource> predicate) {
-        return instance.requires(Permissions.require("carpet.player.in", 2));
+
+    @ModifyExpressionValue(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;then(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
+    private static ArgumentBuilder carpetlantern$addPrivateArgumentIn(ArgumentBuilder builder) {
+        if (!(builder instanceof LiteralArgumentBuilder) || !((LiteralArgumentBuilder) builder).getLiteral().equals("spawn")) return builder;
+        if (builder.getArguments().size() < 2) return builder;
+
+        for (Object arg : builder.getArguments()) {
+            LiteralCommandNode node = (LiteralCommandNode) arg;
+
+            if (node.getLiteral().equals("at")) {
+                builder.then(node.createBuilder().requires(Permissions.require("carpet.player.at", 2)).build());
+                node.addChild(node.getChild("position").createBuilder()
+                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+
+                node = (LiteralCommandNode) node.getChild("position").getChild("facing");
+                node.addChild(node.getChild("direction").createBuilder()
+                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+
+                node = (LiteralCommandNode) node.getChild("direction").getChild("in");
+                node.addChild(node.getChild("dimension").createBuilder()
+                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+
+                ArgumentCommandNode nodeArg = (ArgumentCommandNode) node.getChild("dimension");
+                nodeArg.addChild(nodeArg.getChild("in").createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
+
+                node = (LiteralCommandNode) nodeArg.getChild("in");
+                node.addChild(node.getChild("gamemode").createBuilder()
+                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+                continue;
+            }
+
+            if (node.getLiteral().equals("in")) {
+                builder.then(node.createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());;
+                node.addChild(node.getChild("gamemode").createBuilder()
+                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+            }
+        }
+
+        builder.then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn));
+        return builder;
     }
 
-    //We're using illegal tricks here...
-    @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/command/CommandManager;literal(Ljava/lang/String;)Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;",
-    ordinal = 31))
-    private static LiteralArgumentBuilder<ServerCommandSource> carpetlantern$requirePermsAt(String literal) {
-        return CommandManager.literal(literal).requires(Permissions.require("carpet.player.at", 2));
+    @Inject(method = "cantReMove(Lcom/mojang/brigadier/context/CommandContext;)Z", at = @At(value = "INVOKE", target = "Lcarpet/commands/PlayerCommand;getPlayer(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/network/ServerPlayerEntity;"))
+    private static void carpetlantern$decrementBotCap(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir) {
+        String playerName = context.getSource().getPlayer().getGameProfile().getName();
+        String botName = StringArgumentType.getString(context, "player");
+
+        if (!BotCapStorage.canKill(playerName, botName) && !Permissions.check(context.getSource(), "carpet.ignorePrivateBot", 2)) {
+            if (CarpetLanternSettings.clUseCarpetMessageFormat) {
+                Messenger.m(context.getSource(), "r Only the summoner can kill private bots");
+            } else {
+                context.getSource().sendFeedback(() -> Text.literal("Only the summoner can kill private bots").formatted(Formatting.RED), false);
+            }
+            cir.setReturnValue(true);
+        }
     }
 
     @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
@@ -62,7 +111,7 @@ public class PlayerCommandMixin {
                 cir.setReturnValue(true);
                 return;
             }
-            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(source.getPlayer().getGameProfile().getName())) {
+            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(source.getPlayer().getGameProfile().getName(), Options.get(source, "carpet.maxPlayerBotCap", CarpetLanternSettings.maxPlayerBotCap, Integer::parseInt))) {
                 if(CarpetLanternSettings.clUseCarpetMessageFormat) {
                     Messenger.m(source, "r You can't spawn more than ", "rb " +CarpetLanternSettings.maxPlayerBotCap + " ", "r players");
                 }else {
@@ -89,7 +138,11 @@ public class PlayerCommandMixin {
         if(player != null) {
             String summonerName = context.getSource().isExecutedByPlayer() ? context.getSource().getPlayer().getGameProfile().getName() : null;
             ((IPlayerAccessor)player).carpetlantern$setSummonerName(summonerName);
-            BotCapStorage.increment(summonerName);
+            boolean privateBot = false;
+            try {
+                privateBot = BoolArgumentType.getBool(context, "private");
+            } catch (IllegalArgumentException ignored) {}
+            BotCapStorage.increment(summonerName, playerName, privateBot);
         }
     }
 }

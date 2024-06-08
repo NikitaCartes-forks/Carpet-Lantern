@@ -21,7 +21,7 @@ public class ServerPlayNetworkHandlerMixin {
         if(player instanceof EntityPlayerMPFake) {
             String name = ((IPlayerAccessor)player).carpetlantern$getSummonerName();
             if(name != null) {
-                BotCapStorage.decrement(name);
+                BotCapStorage.decrement(player.getGameProfile().getName());
             }
 
         }
