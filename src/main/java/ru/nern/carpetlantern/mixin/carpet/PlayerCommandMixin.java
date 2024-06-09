@@ -14,6 +14,7 @@ import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.Options;
 import me.lucko.fabric.api.permissions.v0.Permissions;
+import net.minecraft.command.argument.RotationArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -47,25 +48,24 @@ public class PlayerCommandMixin {
         for (Object arg : builder.getArguments()) {
             LiteralCommandNode node = (LiteralCommandNode) arg;
 
-            if (node.getLiteral().equals("at")) {
+            if (node.getLiteral().equals("at")) {;
                 builder.then(node.createBuilder().requires(Permissions.require("carpet.player.at", 2)).build());
-                node.addChild(node.getChild("position").createBuilder()
-                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
 
-                node = (LiteralCommandNode) node.getChild("position").getChild("facing");
-                node.addChild(node.getChild("direction").createBuilder()
-                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+                ArgumentCommandNode nodeArg  = (ArgumentCommandNode) node.getChild("position");
+                nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
 
-                node = (LiteralCommandNode) node.getChild("direction").getChild("in");
-                node.addChild(node.getChild("dimension").createBuilder()
-                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+                nodeArg = (ArgumentCommandNode) nodeArg.getChild("facing").getChild("direction");
+                nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
 
-                ArgumentCommandNode nodeArg = (ArgumentCommandNode) node.getChild("dimension");
+                nodeArg = (ArgumentCommandNode) nodeArg.getChild("in").getChild("dimension");
                 nodeArg.addChild(nodeArg.getChild("in").createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
+                nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
 
                 node = (LiteralCommandNode) nodeArg.getChild("in");
-                node.addChild(node.getChild("gamemode").createBuilder()
-                        .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
+                nodeArg.addChild(node.createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
+
+                nodeArg = (ArgumentCommandNode) node.getChild("gamemode");
+                nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
                 continue;
             }
 
