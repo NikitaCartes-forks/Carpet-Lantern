@@ -4,7 +4,6 @@ import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -14,7 +13,6 @@ import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.Options;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.command.argument.RotationArgumentType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.server.MinecraftServer;
@@ -32,7 +30,6 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import ru.nern.carpetlantern.BotCapStorage;
 import ru.nern.carpetlantern.CarpetLanternSettings;
 import ru.nern.carpetlantern.IPlayerAccessor;
-import ru.nern.carpetlantern.integration.BlockBotIntegration;
 
 import static net.minecraft.server.command.CommandManager.argument;
 
@@ -80,7 +77,7 @@ public class PlayerCommandMixin {
         return builder;
     }
 
-    @Inject(method = "cantReMove(Lcom/mojang/brigadier/context/CommandContext;)Z", at = @At(value = "INVOKE", target = "Lcarpet/commands/PlayerCommand;getPlayer(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/network/ServerPlayerEntity;"))
+    @Inject(method = "cantReMove(Lcom/mojang/brigadier/context/CommandContext;)Z", at = @At(value = "INVOKE", target = "Lcarpet/commands/PlayerCommand;getPlayer(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/network/ServerPlayerEntity;"), cancellable = true)
     private static void carpetlantern$decrementBotCap(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir) {
         String playerName = context.getSource().getPlayer().getGameProfile().getName();
         String botName = StringArgumentType.getString(context, "player");
@@ -96,7 +93,7 @@ public class PlayerCommandMixin {
     }
 
     @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
-    private static void carpetlantern$botCapCheck(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir, @Local MinecraftServer server, @Local(ordinal = 0) GameProfile profile) {
+    private static void carpetlantern$botCapCheck(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir, @Local MinecraftServer server) {
         ServerCommandSource source = context.getSource();
         //Bot cap
 
@@ -122,19 +119,12 @@ public class PlayerCommandMixin {
                 return;
             }
         }
-        if(BlockBotIntegration.isPlayerWhitelisted(profile, server) && !source.hasPermissionLevel(2)) {
-            if(CarpetLanternSettings.clUseCarpetMessageFormat) {
-                Messenger.m(source, "r BlockBot whitelisted players can only be spawned by operators");
-            }else {
-                source.sendFeedback(() -> Text.literal("BlockBot whitelisted players can only be spawned by operators").formatted(Formatting.RED), false);
-            }
-            cir.setReturnValue(true);
-        }
     }
 
     @Inject(method = "spawn", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private static void carpetlantern$spawnIncrement(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Integer> cir, ServerCommandSource source, Vec3d pos, Vec2f facing, RegistryKey dimType, GameMode mode, boolean flying, String playerName, PlayerEntity player) {
+    private static void carpetlantern$spawnIncrement(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Integer> cir, ServerCommandSource source, Vec3d pos, Vec2f facing, RegistryKey dimType, GameMode mode, boolean flying, String playerName, boolean success) {
         //Bot cap
+        PlayerEntity player = source.getServer().getPlayerManager().getPlayer(playerName);
         if(player != null) {
             String summonerName = context.getSource().isExecutedByPlayer() ? context.getSource().getPlayer().getGameProfile().getName() : null;
             ((IPlayerAccessor)player).carpetlantern$setSummonerName(summonerName);

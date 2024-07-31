@@ -94,14 +94,6 @@ public class CommandsMixin {
         }
     }
 
-    @Mixin(value = TickCommand.class, remap = false)
-    public static class TickCommandMixin {
-        @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
-        private static ArgumentBuilder carpetlantern$requirePerms(LiteralArgumentBuilder<ServerCommandSource> instance, Predicate<ServerCommandSource> predicate) {
-            return instance.requires(Permissions.require("carpet.tick", 2));
-        }
-    }
-
     @Mixin(value = SettingsManager.class, remap = false)
     public static class SettingsManagerMixin {
         @Redirect(method = "registerCommand", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;", ordinal = 0))
