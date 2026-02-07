@@ -4,7 +4,7 @@
   "version": "${version}",
 
   "name": "Carpet Lantern Mod",
-  "description": "Modification for Carpet/TIS-Carpet made for Lantern X",
+  "description": "Modification for Carpet made for Lantern SMP",
   "authors": [
     "ForwarD NerN",
     "NikitaCartes"
@@ -24,11 +24,10 @@
   ],
 
   "depends": {
-    "fabricloader": ">=0.15.0",
-    "minecraft": ">1.20",
-    "carpet-tis-addition": "*",
+    "fabricloader": ">=0.17.0",
+    "minecraft": ">=1.21.10",
     "carpet": "*",
-    "java": ">=17",
+    "java": ">=21",
     "fabric-permissions-api-v0": "*"
   }
 }

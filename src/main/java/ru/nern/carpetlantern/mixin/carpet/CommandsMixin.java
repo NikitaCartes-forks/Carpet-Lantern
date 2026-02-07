@@ -93,12 +93,6 @@ public class CommandsMixin {
             return instance.requires(Permissions.require("carpet.spawn", 2));
         }
     }
-
-    @Mixin(value = TickCommand.class, remap = false)
-    public static class TickCommandMixin {
-        @Redirect(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;requires(Ljava/util/function/Predicate;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
-        private static ArgumentBuilder carpetlantern$requirePerms(LiteralArgumentBuilder<ServerCommandSource> instance, Predicate<ServerCommandSource> predicate) {
-            return instance.requires(Permissions.require("carpet.tick", 2));
         }
     }
 

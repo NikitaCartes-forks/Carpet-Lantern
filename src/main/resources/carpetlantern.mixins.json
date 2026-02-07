@@ -2,7 +2,7 @@
   "required": true,
   "minVersion": "0.8",
   "package": "ru.nern.carpetlantern.mixin",
-  "compatibilityLevel": "JAVA_17",
+  "compatibilityLevel": "JAVA_21",
   "mixins": [
     "carpet.CommandsMixin$CounterCommandMixin",
     "carpet.CommandsMixin$DistanceCommandMixin",
@@ -15,7 +15,6 @@
     "carpet.CommandsMixin$ProfileCommandMixin",
     "carpet.CommandsMixin$SettingsManagerMixin",
     "carpet.CommandsMixin$SpawnCommandMixin",
-    "carpet.CommandsMixin$TickCommandMixin",
     "carpet.EntityPlayerMPFakeMixin",
     "carpet.PlayerCommandMixin",
     "carpet.PlayerCommandSpawnInvoker"
