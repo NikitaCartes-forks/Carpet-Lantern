@@ -4,8 +4,6 @@
   "package": "ru.nern.carpetlantern.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "ServerPlayNetworkHandlerMixin",
-    "UpdateSuppressionContextMixin",
     "carpet.CommandsMixin$CounterCommandMixin",
     "carpet.CommandsMixin$DistanceCommandMixin",
     "carpet.CommandsMixin$DrawCommandMixin",
@@ -20,8 +18,7 @@
     "carpet.CommandsMixin$TickCommandMixin",
     "carpet.EntityPlayerMPFakeMixin",
     "carpet.PlayerCommandMixin",
-    "carpet.PlayerCommandSpawnInvoker",
-    "carpet.ServerPlayNetworkHandlerMixin"
+    "carpet.PlayerCommandSpawnInvoker"
   ],
   "client": [
   ],

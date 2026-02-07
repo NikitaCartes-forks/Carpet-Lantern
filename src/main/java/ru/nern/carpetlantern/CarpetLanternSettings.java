@@ -38,21 +38,4 @@ public class CarpetLanternSettings {
             validators = MaxBotCapValidator.class
     )
     public static int maxPlayerBotGlobalCap = 4;
-
-    @Rule(
-            options = {"-1", "64", "128"},
-            strict = false,
-            categories = {LANTERN, FEATURE}
-    )
-    public static int updateSuppressionMessageRange = -1;
-
-    @Rule(
-            categories = {LANTERN, FEATURE}
-    )
-    public static boolean clUseCarpetMessageFormat = true;
-
-    @Rule(
-            categories = {LANTERN, FEATURE}
-    )
-    public static boolean playerCommandBlockBotVerification = false;
 }
