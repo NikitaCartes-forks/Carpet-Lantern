@@ -2,9 +2,10 @@ package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.ArgumentBuilder;
@@ -14,29 +15,18 @@ import com.mojang.brigadier.tree.ArgumentCommandNode;
 import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.Options;
 import me.lucko.fabric.api.permissions.v0.Permissions;
-import net.minecraft.command.argument.RotationArgumentType;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.server.MinecraftServer;
-import net.minecraft.server.command.ServerCommandSource;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.math.Vec2f;
-import net.minecraft.util.math.Vec3d;
-import net.minecraft.world.GameMode;
+import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import ru.nern.carpetlantern.BotCapStorage;
 import ru.nern.carpetlantern.CarpetLanternSettings;
-import ru.nern.carpetlantern.IPlayerAccessor;
-import ru.nern.carpetlantern.integration.BlockBotIntegration;
 
-import static net.minecraft.server.command.CommandManager.argument;
+import static net.minecraft.commands.Commands.argument;
 
-//Checks if player can spawn anymore carpet bots.
+//Checks if player can spawn/manipulate carpet bots with bot cap and private bot support.
 @Mixin(value = PlayerCommand.class, remap = false)
 public class PlayerCommandMixin {
 
@@ -48,10 +38,10 @@ public class PlayerCommandMixin {
         for (Object arg : builder.getArguments()) {
             LiteralCommandNode node = (LiteralCommandNode) arg;
 
-            if (node.getLiteral().equals("at")) {;
+            if (node.getLiteral().equals("at")) {
                 builder.then(node.createBuilder().requires(Permissions.require("carpet.player.at", 2)).build());
 
-                ArgumentCommandNode nodeArg  = (ArgumentCommandNode) node.getChild("position");
+                ArgumentCommandNode nodeArg = (ArgumentCommandNode) node.getChild("position");
                 nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
 
                 nodeArg = (ArgumentCommandNode) nodeArg.getChild("facing").getChild("direction");
@@ -61,16 +51,16 @@ public class PlayerCommandMixin {
                 nodeArg.addChild(nodeArg.getChild("in").createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
                 nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
 
-                node = (LiteralCommandNode) nodeArg.getChild("in");
-                nodeArg.addChild(node.createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
+                LiteralCommandNode litNode = (LiteralCommandNode) nodeArg.getChild("in");
+                nodeArg.addChild(litNode.createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
 
-                nodeArg = (ArgumentCommandNode) node.getChild("gamemode");
+                nodeArg = (ArgumentCommandNode) litNode.getChild("gamemode");
                 nodeArg.addChild(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn).build());
                 continue;
             }
 
             if (node.getLiteral().equals("in")) {
-                builder.then(node.createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());;
+                builder.then(node.createBuilder().requires(Permissions.require("carpet.player.in", 2)).build());
                 node.addChild(node.getChild("gamemode").createBuilder()
                         .then(argument("private", BoolArgumentType.bool()).executes(PlayerCommandSpawnInvoker::spawn)).build());
             }
@@ -80,68 +70,66 @@ public class PlayerCommandMixin {
         return builder;
     }
 
-    @Inject(method = "cantReMove(Lcom/mojang/brigadier/context/CommandContext;)Z", at = @At(value = "INVOKE", target = "Lcarpet/commands/PlayerCommand;getPlayer(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/network/ServerPlayerEntity;"))
-    private static void carpetlantern$decrementBotCap(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir) {
-        String playerName = context.getSource().getPlayer().getGameProfile().getName();
-        String botName = StringArgumentType.getString(context, "player");
+    @Inject(method = "cantManipulate", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
+    private static void carpetlantern$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValue()) return; // Already blocked
 
-        if (!BotCapStorage.canKill(playerName, botName) && !Permissions.check(context.getSource(), "carpet.ignorePrivateBot", 2)) {
-            if (CarpetLanternSettings.clUseCarpetMessageFormat) {
-                Messenger.m(context.getSource(), "r Only the summoner can kill private bots");
-            } else {
-                context.getSource().sendFeedback(() -> Text.literal("Only the summoner can kill private bots").formatted(Formatting.RED), false);
+        try {
+            ServerPlayer sender = context.getSource().getPlayer();
+            if (sender == null) return;
+
+            String playerName = sender.nameAndId().name();
+            String botName = StringArgumentType.getString(context, "player");
+
+            if (!BotCapStorage.canManipulate(playerName, botName)) {
+                if (!Permissions.check(context.getSource(), "carpet.ignorePrivateBot", 2)) {
+                    Messenger.m(context.getSource(), "r Only the summoner can manipulate private bots");
+                    cir.setReturnValue(true);
+                }
             }
-            cir.setReturnValue(true);
-        }
+        } catch (Exception ignored) {}
     }
 
     @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
-    private static void carpetlantern$botCapCheck(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Boolean> cir, @Local MinecraftServer server, @Local(ordinal = 0) GameProfile profile) {
-        ServerCommandSource source = context.getSource();
-        //Bot cap
+    private static void carpetlantern$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValue()) return; // Already blocked
 
-        if(source.isExecutedByPlayer()) {
+        CommandSourceStack source = context.getSource();
+
+        if (!source.isPlayer()) {
+            return;
+        }
+
+        try {
+            String summonerName = source.getPlayer().nameAndId().name();
+
             if (!Permissions.check(source, "carpet.ignoreGlobalBotCap", 2) && BotCapStorage.isCapReached()) {
-                if(CarpetLanternSettings.clUseCarpetMessageFormat) {
-                    Messenger.m(source, "r You can't spawn more than ", "rb " +CarpetLanternSettings.maxPlayerBotGlobalCap + " ", "r players globally");
-                }else {
-                    source.sendFeedback(() -> Text.literal("You can't spawn more than " + CarpetLanternSettings.maxPlayerBotGlobalCap + " players globally").formatted(Formatting.RED), false);
-                }
-
+                Messenger.m(source, "r You can't spawn more than ", "rb " + CarpetLanternSettings.maxPlayerBotGlobalCap + " ", "r players globally");
                 cir.setReturnValue(true);
                 return;
             }
-            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(source.getPlayer().getGameProfile().getName(), Options.get(source, "carpet.maxPlayerBotCap", CarpetLanternSettings.maxPlayerBotCap, Integer::parseInt))) {
-                if(CarpetLanternSettings.clUseCarpetMessageFormat) {
-                    Messenger.m(source, "r You can't spawn more than ", "rb " +CarpetLanternSettings.maxPlayerBotCap + " ", "r players");
-                }else {
-                    source.sendFeedback(() -> Text.literal("You can't spawn more than " + CarpetLanternSettings.maxPlayerBotCap + " players").formatted(Formatting.RED), false);
-                }
-
+            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(summonerName, Options.get(source, "carpet.maxPlayerBotCap", CarpetLanternSettings.maxPlayerBotCap, Integer::parseInt))) {
+                Messenger.m(source, "r You can't spawn more than ", "rb " + CarpetLanternSettings.maxPlayerBotCap + " ", "r players");
                 cir.setReturnValue(true);
-                return;
             }
-        }
-        if(BlockBotIntegration.isPlayerWhitelisted(profile, server) && !source.hasPermissionLevel(2)) {
-            if(CarpetLanternSettings.clUseCarpetMessageFormat) {
-                Messenger.m(source, "r BlockBot whitelisted players can only be spawned by operators");
-            }else {
-                source.sendFeedback(() -> Text.literal("BlockBot whitelisted players can only be spawned by operators").formatted(Formatting.RED), false);
-            }
-            cir.setReturnValue(true);
-        }
+        } catch (Exception ignored) {}
     }
 
-    @Inject(method = "spawn", at = @At("TAIL"), locals = LocalCapture.CAPTURE_FAILHARD)
-    private static void carpetlantern$spawnIncrement(CommandContext<ServerCommandSource> context, CallbackInfoReturnable<Integer> cir, ServerCommandSource source, Vec3d pos, Vec2f facing, RegistryKey dimType, GameMode mode, boolean flying, String playerName, PlayerEntity player) {
-        //Bot cap
-        if(player != null) {
-            String summonerName = context.getSource().isExecutedByPlayer() ? context.getSource().getPlayer().getGameProfile().getName() : null;
-            ((IPlayerAccessor)player).carpetlantern$setSummonerName(summonerName);
+    @Definition(id = "createFake", method = "Lcarpet/patches/EntityPlayerMPFake;createFake(Ljava/lang/String;Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/world/phys/Vec3;DDLnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/level/GameType;Z)Z")
+    @Expression("? = createFake(?, ?, ?, ?, ?, ?, ?, ?)")
+    @Inject(method = "spawn", at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER))
+    private static void carpetlantern$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
+        if (success) {
+            String summonerName = null;
+            try {
+                summonerName = source.isPlayer() ? source.getPlayer().nameAndId().name() : null;
+            } catch (Exception ignored) {}
+
             boolean privateBot = false;
             try {
                 privateBot = BoolArgumentType.getBool(context, "private");
             } catch (IllegalArgumentException ignored) {}
+
             BotCapStorage.increment(summonerName, playerName, privateBot);
         }
     }

@@ -1,22 +1,30 @@
 package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.patches.EntityPlayerMPFake;
+import com.mojang.authlib.GameProfile;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ClientInformation;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
-import ru.nern.carpetlantern.IPlayerAccessor;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import ru.nern.carpetlantern.BotCapStorage;
 
-//Support for storing name of whoever summoned a carpet bot.
+//Handle decrement when a fake player is killed.
 @Mixin(EntityPlayerMPFake.class)
-public class EntityPlayerMPFakeMixin implements IPlayerAccessor {
-    @Unique
-    private String summonerName;
-    @Override
-    public void carpetlantern$setSummonerName(String name) {
-        this.summonerName = name;
+public abstract class EntityPlayerMPFakeMixin extends ServerPlayer {
+
+    public EntityPlayerMPFakeMixin(MinecraftServer minecraftServer, ServerLevel serverLevel, GameProfile gameProfile, ClientInformation clientInformation) {
+        super(minecraftServer, serverLevel, gameProfile, clientInformation);
     }
 
-    @Override
-    public String carpetlantern$getSummonerName() {
-        return summonerName;
+    @Inject(method = "kill(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
+    private void carpetlantern$decrementOnKill(Component reason, CallbackInfo ci) {
+        BotCapStorage.decrement(this.nameAndId().name());
+        ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect(this.connection, this.level().getServer());
     }
 }

@@ -2,16 +2,16 @@ package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import com.mojang.brigadier.context.CommandContext;
-import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.commands.CommandSourceStack;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-//Checks if player can spawn anymore carpet bots.
+//Invoker for PlayerCommand.spawn method.
 @Mixin(value = PlayerCommand.class, remap = false)
 public interface PlayerCommandSpawnInvoker {
 
     @Invoker("spawn")
-    static int spawn(CommandContext<ServerCommandSource> context) {
+    static int spawn(CommandContext<CommandSourceStack> context) {
         throw new AssertionError();
     }
 }
