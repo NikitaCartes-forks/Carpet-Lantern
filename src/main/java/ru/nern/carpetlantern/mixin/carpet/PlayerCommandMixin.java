@@ -2,8 +2,6 @@ package ru.nern.carpetlantern.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
-import com.llamalad7.mixinextras.expression.Definition;
-import com.llamalad7.mixinextras.expression.Expression;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.brigadier.arguments.BoolArgumentType;
@@ -115,21 +113,14 @@ public class PlayerCommandMixin {
         } catch (Exception ignored) {}
     }
 
-    @Definition(id = "createFake", method = "Lcarpet/patches/EntityPlayerMPFake;createFake(Ljava/lang/String;Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/world/phys/Vec3;DDLnet/minecraft/resources/ResourceKey;Lnet/minecraft/world/level/GameType;Z)Z")
-    @Expression("? = createFake(?, ?, ?, ?, ?, ?, ?, ?)")
-    @Inject(method = "spawn", at = @At(value = "MIXINEXTRAS:EXPRESSION", shift = At.Shift.AFTER))
+    @Inject(method = "spawn", at = @At("TAIL"))
     private static void carpetlantern$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
         if (success) {
-            String summonerName = null;
-            try {
-                summonerName = source.isPlayer() ? source.getPlayer().nameAndId().name() : null;
-            } catch (Exception ignored) {}
-
+            String summonerName = source.isPlayer() ? source.getPlayer().nameAndId().name() : null;
             boolean privateBot = false;
             try {
                 privateBot = BoolArgumentType.getBool(context, "private");
             } catch (IllegalArgumentException ignored) {}
-
             BotCapStorage.increment(summonerName, playerName, privateBot);
         }
     }
