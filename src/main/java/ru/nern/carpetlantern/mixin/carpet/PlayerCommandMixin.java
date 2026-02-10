@@ -68,30 +68,24 @@ public class PlayerCommandMixin {
         return builder;
     }
 
-    @Inject(method = "cantManipulate", at = @At(value = "RETURN", ordinal = 1), cancellable = true)
+    @Inject(method = "cantManipulate", at = @At(value = "INVOKE", target = "Lcarpet/commands/PlayerCommand;getPlayer(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/level/ServerPlayer;"), cancellable = true)
     private static void carpetlantern$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
-        if (cir.getReturnValue()) return; // Already blocked
+        ServerPlayer sender = context.getSource().getPlayer();
+        if (sender == null) return;
 
-        try {
-            ServerPlayer sender = context.getSource().getPlayer();
-            if (sender == null) return;
+        String playerName = sender.nameAndId().name();
+        String botName = StringArgumentType.getString(context, "player");
 
-            String playerName = sender.nameAndId().name();
-            String botName = StringArgumentType.getString(context, "player");
-
-            if (!BotCapStorage.canManipulate(playerName, botName)) {
-                if (!Permissions.check(context.getSource(), "carpet.ignorePrivateBot", 2)) {
-                    Messenger.m(context.getSource(), "r Only the summoner can manipulate private bots");
-                    cir.setReturnValue(true);
-                }
+        if (!BotCapStorage.canManipulate(playerName, botName)) {
+            if (!Permissions.check(context.getSource(), "carpet.ignorePrivateBot", 2)) {
+                Messenger.m(context.getSource(), "r Only the summoner can manipulate private bots");
+                cir.setReturnValue(true);
             }
-        } catch (Exception ignored) {}
+        }
     }
 
     @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
     private static void carpetlantern$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
-        if (cir.getReturnValue()) return; // Already blocked
-
         CommandSourceStack source = context.getSource();
 
         if (!source.isPlayer()) {
