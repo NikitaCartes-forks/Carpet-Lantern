@@ -1,8 +1,10 @@
-package xyz.nikitacartes.skulkcarpet;
+package xyz.nikitacartes.skulkcarpet.integration;
 
+import net.fabricmc.loader.api.FabricLoader;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.node.types.InheritanceNode;
+import xyz.nikitacartes.skulkcarpet.SculkCarpetSettings;
 
 import java.util.UUID;
 
@@ -12,6 +14,7 @@ import java.util.UUID;
  */
 public class LuckPermsHelper {
     
+    private static final boolean LUCKPERMS_LOADED = FabricLoader.getInstance().isModLoaded("luckperms");
     private static LuckPerms luckPerms = null;
     
     /**
@@ -19,6 +22,9 @@ public class LuckPermsHelper {
      * @return LuckPerms API instance, or null if LuckPerms is not loaded
      */
     private static LuckPerms getLuckPerms() {
+        if (!LUCKPERMS_LOADED) {
+            return null;
+        }
         if (luckPerms == null) {
             try {
                 luckPerms = LuckPermsProvider.get();

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nikitacartes.skulkcarpet.BotCapStorage;
-import xyz.nikitacartes.skulkcarpet.LuckPermsHelper;
+import xyz.nikitacartes.skulkcarpet.integration.LuckPermsHelper;
 
 //Handle decrement when a fake player is killed and LuckPerms group management.
 @Mixin(EntityPlayerMPFake.class)
