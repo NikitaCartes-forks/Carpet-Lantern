@@ -111,7 +111,7 @@ public class PlayerCommandMixin {
     private static void skulkcarpet$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
         if (success) {
             String summonerName = source.isPlayer() ? source.getPlayer().nameAndId().name() : null;
-            boolean privateBot = false;
+            boolean privateBot = SculkCarpetSettings.fakePlayerDefaultPrivate;
             try {
                 privateBot = BoolArgumentType.getBool(context, "private");
             } catch (IllegalArgumentException ignored) {}

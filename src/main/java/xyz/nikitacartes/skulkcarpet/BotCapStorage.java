@@ -8,10 +8,12 @@ public class BotCapStorage {
 
     public static boolean isCapReachedFor(String playerName, int limit) {
         if (playerName == null) return false;
+        if (limit < 0) return false; // -1 means disabled
         return BOTS.stream().filter(bot -> playerName.equalsIgnoreCase(bot.getSummonerName())).count() >= limit;
     }
 
     public static boolean isCapReached() {
+        if (SculkCarpetSettings.maxPlayerBotGlobalCap < 0) return false; // -1 means disabled
         return BOTS.size() >= SculkCarpetSettings.maxPlayerBotGlobalCap;
     }
 
