@@ -68,7 +68,7 @@ public class PlayerCommandMixin {
         return builder;
     }
 
-    @Inject(method = "cantManipulate", at = @At(value = "INVOKE", target = "Lcarpet/commands/PlayerCommand;getPlayer(Lcom/mojang/brigadier/context/CommandContext;)Lnet/minecraft/server/level/ServerPlayer;"), cancellable = true)
+    @Inject(method = "cantManipulate", at = @At(value = "HEAD"), cancellable = true)
     private static void carpetlantern$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
         ServerPlayer sender = context.getSource().getPlayer();
         if (sender == null) return;
