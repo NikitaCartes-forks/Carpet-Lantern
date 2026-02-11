@@ -37,8 +37,14 @@ public class SculkCarpetSettings {
             categories = {SKULK, FEATURE},
             validators = MaxBotCapValidator.class
     )
-    public static int maxPlayerBotGlobalCap = 4;
     public static int maxPlayerBotGlobalCap = -1;
+
+    @Rule(
+            options = {"default", "bot", "player"},
+            strict = false,
+            categories = {SKULK, FEATURE}
+    )
+    public static String fakePlayerLuckPermsGroup = "default";
 
     @Rule(
             categories = {SKULK, FEATURE}
