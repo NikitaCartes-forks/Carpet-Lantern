@@ -1,4 +1,7 @@
 {
   "carpet.rule.maxPlayerBotCap.desc": "Controls how many bots can player spawn without [carpet.unlimitedBots] permission.",
-  "carpet.rule.maxPlayerBotGlobalCap.desc": "Controls how many bots can be spawned without [carpet.ignoreGlobalBotCap] permission."
+  "carpet.rule.maxPlayerBotGlobalCap.desc": "Controls how many bots can be spawned without [carpet.ignoreGlobalBotCap] permission.",
+  "carpet.rule.fakePlayerLuckPermsGroup.desc": "The LuckPerms group to assign to spawned fake players.",
+  "carpet.rule.fakePlayerDefaultPrivate.desc": "Whether fake players are spawned as private by default.",
+  "carpet.rule.playerCommandBlockBotVerification.desc": "If BlockBot is installed, prevents non-ops from spawning fake players with names of whitelisted/linked players."
 }

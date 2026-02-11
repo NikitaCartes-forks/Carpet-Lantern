@@ -50,4 +50,9 @@ public class SculkCarpetSettings {
             categories = {SKULK, FEATURE}
     )
     public static boolean fakePlayerDefaultPrivate = false;
+
+    @Rule(
+            categories = {SKULK, FEATURE}
+    )
+    public static boolean playerCommandBlockBotVerification = false;
 }

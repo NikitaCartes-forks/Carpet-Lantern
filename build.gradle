@@ -61,6 +61,8 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archives_base_name}"}
 	}
+	// Exclude BlockBot stub classes - at runtime, the real BlockBot mod provides these
+	exclude('io/github/quiltservertools/blockbotdiscord/**')
 }
 
 // configure the maven publication

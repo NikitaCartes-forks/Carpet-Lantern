@@ -14,13 +14,16 @@ import com.mojang.brigadier.tree.LiteralCommandNode;
 import me.lucko.fabric.api.permissions.v0.Options;
 import me.lucko.fabric.api.permissions.v0.Permissions;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.players.NameAndId;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nikitacartes.skulkcarpet.BotCapStorage;
 import xyz.nikitacartes.skulkcarpet.SculkCarpetSettings;
+import xyz.nikitacartes.skulkcarpet.integration.BlockBotIntegration;
 
 import static net.minecraft.commands.Commands.argument;
 
@@ -84,27 +87,31 @@ public class PlayerCommandMixin {
         }
     }
 
-    @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
-    private static void skulkcarpet$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
+    @Inject(method = "cantSpawn", at = @At("TAIL"), cancellable = true)
+    private static void skulkcarpet$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir, @Local(name = "server") MinecraftServer server, @Local(name = "profile") NameAndId profile) {
         CommandSourceStack source = context.getSource();
 
         if (!source.isPlayer()) {
             return;
         }
 
-        try {
-            String summonerName = source.getPlayer().nameAndId().name();
+        String summonerName = source.getPlayer().nameAndId().name();
 
-            if (!Permissions.check(source, "carpet.ignoreGlobalBotCap", 2) && BotCapStorage.isCapReached()) {
-                Messenger.m(source, "r You can't spawn more than ", "rb " + SculkCarpetSettings.maxPlayerBotGlobalCap + " ", "r players globally");
-                cir.setReturnValue(true);
-                return;
-            }
-            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(summonerName, Options.get(source, "carpet.maxPlayerBotCap", SculkCarpetSettings.maxPlayerBotCap, Integer::parseInt))) {
-                Messenger.m(source, "r You can't spawn more than ", "rb " + SculkCarpetSettings.maxPlayerBotCap + " ", "r players");
-                cir.setReturnValue(true);
-            }
-        } catch (Exception ignored) {}
+        if (!Permissions.check(source, "carpet.ignoreGlobalBotCap", 2) && BotCapStorage.isCapReached()) {
+            Messenger.m(source, "r You can't spawn more than ", "rb " + SculkCarpetSettings.maxPlayerBotGlobalCap + " ", "r players globally");
+            cir.setReturnValue(true);
+            return;
+        }
+        if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(summonerName, Options.get(source, "carpet.maxPlayerBotCap", SculkCarpetSettings.maxPlayerBotCap, Integer::parseInt))) {
+            Messenger.m(source, "r You can't spawn more than ", "rb " + SculkCarpetSettings.maxPlayerBotCap + " ", "r players");
+            cir.setReturnValue(true);
+        }
+
+        // BlockBot integration: prevent spawning bots with names of whitelisted players
+        if (BlockBotIntegration.isPlayerWhitelisted(profile, server) && !Permissions.check(source, "carpet.bypassBlockBot", 2)) {
+            Messenger.m(source, "r BlockBot whitelisted players can only be spawned by operators or permission holders");
+            cir.setReturnValue(true);
+        }
     }
 
     @Inject(method = "spawn", at = @At("TAIL"))
