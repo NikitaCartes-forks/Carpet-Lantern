@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
-  "id": "carpetlantern",
+  "id": "skulkcarpet",
   "version": "${version}",
 
-  "name": "Carpet Lantern Mod",
-  "description": "Modification for Carpet made for Lantern SMP",
+  "name": "Sculk Carpet Mod",
+  "description": "Modification for Carpet made for Sculk SMP",
   "authors": [
     "ForwarD NerN",
     "NikitaCartes"
   ],
 
   "license": "MIT",
-  "icon": "assets/carpetlantern/icon.png",
+  "icon": "assets/skulkcarpet/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "ru.nern.carpetlantern.CarpetLantern"
+      "xyz.nikitacartes.skulkcarpet.SculkCarpet"
     ]
   },
   "mixins": [
-    "carpetlantern.mixins.json"
+    "skulkcarpet.mixins.json"
   ],
 
   "depends": {

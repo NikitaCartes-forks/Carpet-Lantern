@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern;
+package xyz.nikitacartes.skulkcarpet;
 
 
 import carpet.api.settings.CarpetRule;
@@ -8,8 +8,8 @@ import net.minecraft.commands.CommandSourceStack;
 
 import static carpet.api.settings.RuleCategory.*;
 
-public class CarpetLanternSettings {
-    public static final String LANTERN = "lantern";
+public class SculkCarpetSettings {
+    public static final String SKULK = "skulk";
 
     private static class MaxBotCapValidator extends Validator<Integer>
     {
@@ -26,7 +26,7 @@ public class CarpetLanternSettings {
     @Rule(
             options = {"2", "4"},
             strict = false,
-            categories = {LANTERN, FEATURE},
+            categories = {SKULK, FEATURE},
             validators = MaxBotCapValidator.class
     )
     public static int maxPlayerBotCap = 2;
@@ -34,7 +34,7 @@ public class CarpetLanternSettings {
     @Rule(
             options = {"2", "4", "8"},
             strict = false,
-            categories = {LANTERN, FEATURE},
+            categories = {SKULK, FEATURE},
             validators = MaxBotCapValidator.class
     )
     public static int maxPlayerBotGlobalCap = 4;

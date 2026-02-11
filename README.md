@@ -1,4 +1,4 @@
-# Carpet Lantern
+# Skulk Carpet
 
 ## Info
-Carpet addon that was specifically made for Lantern X SMP.
+Carpet addon that was specifically made for Skulk SMP.

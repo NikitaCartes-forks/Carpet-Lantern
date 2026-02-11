@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern;
+package xyz.nikitacartes.skulkcarpet;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -12,7 +12,7 @@ public class BotCapStorage {
     }
 
     public static boolean isCapReached() {
-        return BOTS.size() >= CarpetLanternSettings.maxPlayerBotGlobalCap;
+        return BOTS.size() >= SculkCarpetSettings.maxPlayerBotGlobalCap;
     }
 
     public static void increment(String playerName, String botName, boolean privateBot) {
@@ -55,4 +55,3 @@ public class BotCapStorage {
         }
     }
 }
-

@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern.mixin.carpet;
+package xyz.nikitacartes.skulkcarpet.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
@@ -19,8 +19,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import ru.nern.carpetlantern.BotCapStorage;
-import ru.nern.carpetlantern.CarpetLanternSettings;
+import xyz.nikitacartes.skulkcarpet.BotCapStorage;
+import xyz.nikitacartes.skulkcarpet.SculkCarpetSettings;
 
 import static net.minecraft.commands.Commands.argument;
 
@@ -29,7 +29,7 @@ import static net.minecraft.commands.Commands.argument;
 public class PlayerCommandMixin {
 
     @ModifyExpressionValue(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;then(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
-    private static ArgumentBuilder carpetlantern$addPrivateArgumentIn(ArgumentBuilder builder) {
+    private static ArgumentBuilder skulkcarpet$addPrivateArgumentIn(ArgumentBuilder builder) {
         if (!(builder instanceof LiteralArgumentBuilder) || !((LiteralArgumentBuilder) builder).getLiteral().equals("spawn")) return builder;
         if (builder.getArguments().size() < 2) return builder;
 
@@ -69,7 +69,7 @@ public class PlayerCommandMixin {
     }
 
     @Inject(method = "cantManipulate", at = @At(value = "HEAD"), cancellable = true)
-    private static void carpetlantern$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
+    private static void skulkcarpet$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
         ServerPlayer sender = context.getSource().getPlayer();
         if (sender == null) return;
 
@@ -85,7 +85,7 @@ public class PlayerCommandMixin {
     }
 
     @Inject(method = "cantSpawn", at = @At("RETURN"), cancellable = true)
-    private static void carpetlantern$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
+    private static void skulkcarpet$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
         CommandSourceStack source = context.getSource();
 
         if (!source.isPlayer()) {
@@ -96,19 +96,19 @@ public class PlayerCommandMixin {
             String summonerName = source.getPlayer().nameAndId().name();
 
             if (!Permissions.check(source, "carpet.ignoreGlobalBotCap", 2) && BotCapStorage.isCapReached()) {
-                Messenger.m(source, "r You can't spawn more than ", "rb " + CarpetLanternSettings.maxPlayerBotGlobalCap + " ", "r players globally");
+                Messenger.m(source, "r You can't spawn more than ", "rb " + SculkCarpetSettings.maxPlayerBotGlobalCap + " ", "r players globally");
                 cir.setReturnValue(true);
                 return;
             }
-            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(summonerName, Options.get(source, "carpet.maxPlayerBotCap", CarpetLanternSettings.maxPlayerBotCap, Integer::parseInt))) {
-                Messenger.m(source, "r You can't spawn more than ", "rb " + CarpetLanternSettings.maxPlayerBotCap + " ", "r players");
+            if (!Permissions.check(source, "carpet.unlimitedBots", 2) && BotCapStorage.isCapReachedFor(summonerName, Options.get(source, "carpet.maxPlayerBotCap", SculkCarpetSettings.maxPlayerBotCap, Integer::parseInt))) {
+                Messenger.m(source, "r You can't spawn more than ", "rb " + SculkCarpetSettings.maxPlayerBotCap + " ", "r players");
                 cir.setReturnValue(true);
             }
         } catch (Exception ignored) {}
     }
 
     @Inject(method = "spawn", at = @At("TAIL"))
-    private static void carpetlantern$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
+    private static void skulkcarpet$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
         if (success) {
             String summonerName = source.isPlayer() ? source.getPlayer().nameAndId().name() : null;
             boolean privateBot = false;

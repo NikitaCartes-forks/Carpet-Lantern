@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern;
+package xyz.nikitacartes.skulkcarpet;
 
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
@@ -14,20 +14,20 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Map;
 
-public class CarpetLantern implements CarpetExtension, ModInitializer {
+public class SculkCarpet implements CarpetExtension, ModInitializer {
 	@Override
 	public void onInitialize() {
-		CarpetServer.manageExtension(new CarpetLantern());
+		CarpetServer.manageExtension(new SculkCarpet());
 	}
 
 	@Override
 	public String version() {
-		return "carpet-lantern";
+		return "sculk-carpet";
 	}
 
 	@Override
 	public Map<String, String> canHasTranslations(String lang) {
-		InputStream langFile = CarpetLantern.class.getClassLoader().getResourceAsStream("assets/carpetlantern/lang/%s.json".formatted(lang));
+		InputStream langFile = SculkCarpet.class.getClassLoader().getResourceAsStream("assets/skulkcarpet/lang/%s.json".formatted(lang));
 		if (langFile == null) {
 			// we don't have that language
 			return Collections.emptyMap();
@@ -44,6 +44,6 @@ public class CarpetLantern implements CarpetExtension, ModInitializer {
 
 	@Override
 	public void onGameStarted() {
-		CarpetServer.settingsManager.parseSettingsClass(CarpetLanternSettings.class);
+		CarpetServer.settingsManager.parseSettingsClass(SculkCarpetSettings.class);
 	}
 }

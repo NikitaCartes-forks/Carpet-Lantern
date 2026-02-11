@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern.mixin.carpet;
+package xyz.nikitacartes.skulkcarpet.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import com.mojang.brigadier.context.CommandContext;

@@ -1,4 +1,4 @@
-package ru.nern.carpetlantern.mixin.carpet;
+package xyz.nikitacartes.skulkcarpet.mixin.carpet;
 
 import carpet.patches.EntityPlayerMPFake;
 import com.mojang.authlib.GameProfile;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import ru.nern.carpetlantern.BotCapStorage;
+import xyz.nikitacartes.skulkcarpet.BotCapStorage;
 
 //Handle decrement when a fake player is killed.
 @Mixin(EntityPlayerMPFake.class)
@@ -23,7 +23,7 @@ public abstract class EntityPlayerMPFakeMixin extends ServerPlayer {
     }
 
     @Inject(method = "kill(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
-    private void carpetlantern$decrementOnKill(Component reason, CallbackInfo ci) {
+    private void skulkcarpet$decrementOnKill(Component reason, CallbackInfo ci) {
         BotCapStorage.decrement(this.nameAndId().name());
         ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect(this.connection, this.level().getServer());
     }
