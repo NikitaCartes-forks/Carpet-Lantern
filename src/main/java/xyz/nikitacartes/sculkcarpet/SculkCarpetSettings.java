@@ -1,4 +1,4 @@
-package xyz.nikitacartes.skulkcarpet;
+package xyz.nikitacartes.sculkcarpet;
 
 
 import carpet.api.settings.CarpetRule;
@@ -9,7 +9,7 @@ import net.minecraft.commands.CommandSourceStack;
 import static carpet.api.settings.RuleCategory.*;
 
 public class SculkCarpetSettings {
-    public static final String SKULK = "skulk";
+    public static final String SCULK = "sculk";
 
     private static class MaxBotCapValidator extends Validator<Integer>
     {
@@ -26,7 +26,7 @@ public class SculkCarpetSettings {
     @Rule(
             options = {"-1", "2", "4"},
             strict = false,
-            categories = {SKULK, FEATURE},
+            categories = {SCULK, FEATURE},
             validators = MaxBotCapValidator.class
     )
     public static int maxPlayerBotCap = -1;
@@ -34,7 +34,7 @@ public class SculkCarpetSettings {
     @Rule(
             options = {"-1", "2", "4", "8"},
             strict = false,
-            categories = {SKULK, FEATURE},
+            categories = {SCULK, FEATURE},
             validators = MaxBotCapValidator.class
     )
     public static int maxPlayerBotGlobalCap = -1;
@@ -42,17 +42,17 @@ public class SculkCarpetSettings {
     @Rule(
             options = {"default", "bot", "player"},
             strict = false,
-            categories = {SKULK, FEATURE}
+            categories = {SCULK, FEATURE}
     )
     public static String fakePlayerLuckPermsGroup = "default";
 
     @Rule(
-            categories = {SKULK, FEATURE}
+            categories = {SCULK, FEATURE}
     )
     public static boolean fakePlayerDefaultPrivate = false;
 
     @Rule(
-            categories = {SKULK, FEATURE}
+            categories = {SCULK, FEATURE}
     )
     public static boolean playerCommandBlockBotVerification = false;
 }

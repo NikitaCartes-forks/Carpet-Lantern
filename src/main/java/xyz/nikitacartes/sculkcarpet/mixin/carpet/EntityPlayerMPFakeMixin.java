@@ -1,4 +1,4 @@
-package xyz.nikitacartes.skulkcarpet.mixin.carpet;
+package xyz.nikitacartes.sculkcarpet.mixin.carpet;
 
 import carpet.patches.EntityPlayerMPFake;
 import com.mojang.authlib.GameProfile;
@@ -12,8 +12,8 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import xyz.nikitacartes.skulkcarpet.BotCapStorage;
-import xyz.nikitacartes.skulkcarpet.integration.LuckPermsHelper;
+import xyz.nikitacartes.sculkcarpet.BotCapStorage;
+import xyz.nikitacartes.sculkcarpet.integration.LuckPermsHelper;
 
 //Handle decrement when a fake player is killed and LuckPerms group management.
 @Mixin(EntityPlayerMPFake.class)
@@ -24,12 +24,12 @@ public abstract class EntityPlayerMPFakeMixin extends ServerPlayer {
     }
 
     @Inject(method = "<init>(Lnet/minecraft/server/MinecraftServer;Lnet/minecraft/server/level/ServerLevel;Lcom/mojang/authlib/GameProfile;Lnet/minecraft/server/level/ClientInformation;Z)V", at = @At("RETURN"))
-    private static void skulkcarpet$addToLuckPermsGroup(MinecraftServer server, ServerLevel worldIn, GameProfile profile, ClientInformation cli, boolean shadow, CallbackInfo ci) {
+    private static void sculkcarpet$addToLuckPermsGroup(MinecraftServer server, ServerLevel worldIn, GameProfile profile, ClientInformation cli, boolean shadow, CallbackInfo ci) {
         LuckPermsHelper.addToGroup(profile.id(), profile.name());
     }
 
     @Inject(method = "kill(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
-    private void skulkcarpet$decrementOnKill(Component reason, CallbackInfo ci) {
+    private void sculkcarpet$decrementOnKill(Component reason, CallbackInfo ci) {
         LuckPermsHelper.removeFromGroup(this.getUUID(), this.nameAndId().name());
         BotCapStorage.decrement(this.nameAndId().name());
         ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect(this.connection, this.level().getServer());

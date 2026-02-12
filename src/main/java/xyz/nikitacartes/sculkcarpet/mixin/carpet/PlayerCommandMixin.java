@@ -1,4 +1,4 @@
-package xyz.nikitacartes.skulkcarpet.mixin.carpet;
+package xyz.nikitacartes.sculkcarpet.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import carpet.utils.Messenger;
@@ -21,9 +21,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-import xyz.nikitacartes.skulkcarpet.BotCapStorage;
-import xyz.nikitacartes.skulkcarpet.SculkCarpetSettings;
-import xyz.nikitacartes.skulkcarpet.integration.BlockBotIntegration;
+import xyz.nikitacartes.sculkcarpet.BotCapStorage;
+import xyz.nikitacartes.sculkcarpet.SculkCarpetSettings;
+import xyz.nikitacartes.sculkcarpet.integration.BlockBotIntegration;
 
 import static net.minecraft.commands.Commands.argument;
 
@@ -32,7 +32,7 @@ import static net.minecraft.commands.Commands.argument;
 public class PlayerCommandMixin {
 
     @ModifyExpressionValue(method = "register", at = @At(value = "INVOKE", target = "Lcom/mojang/brigadier/builder/LiteralArgumentBuilder;then(Lcom/mojang/brigadier/builder/ArgumentBuilder;)Lcom/mojang/brigadier/builder/ArgumentBuilder;"))
-    private static ArgumentBuilder skulkcarpet$addPrivateArgumentIn(ArgumentBuilder builder) {
+    private static ArgumentBuilder sculkcarpet$addPrivateArgumentIn(ArgumentBuilder builder) {
         if (!(builder instanceof LiteralArgumentBuilder) || !((LiteralArgumentBuilder) builder).getLiteral().equals("spawn")) return builder;
         if (builder.getArguments().size() < 2) return builder;
 
@@ -72,7 +72,7 @@ public class PlayerCommandMixin {
     }
 
     @Inject(method = "cantManipulate", at = @At(value = "HEAD"), cancellable = true)
-    private static void skulkcarpet$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
+    private static void sculkcarpet$checkPrivateBotManipulation(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir) {
         ServerPlayer sender = context.getSource().getPlayer();
         if (sender == null) return;
 
@@ -88,7 +88,7 @@ public class PlayerCommandMixin {
     }
 
     @Inject(method = "cantSpawn", at = @At("TAIL"), cancellable = true)
-    private static void skulkcarpet$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir, @Local(name = "server") MinecraftServer server, @Local(name = "profile") NameAndId profile) {
+    private static void sculkcarpet$botCapCheck(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Boolean> cir, @Local(name = "server") MinecraftServer server, @Local(name = "profile") NameAndId profile) {
         CommandSourceStack source = context.getSource();
 
         if (!source.isPlayer()) {
@@ -115,7 +115,7 @@ public class PlayerCommandMixin {
     }
 
     @Inject(method = "spawn", at = @At("TAIL"))
-    private static void skulkcarpet$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
+    private static void sculkcarpet$spawnIncrement(CommandContext<CommandSourceStack> context, CallbackInfoReturnable<Integer> cir, @Local(name = "source") CommandSourceStack source, @Local(name = "playerName") String playerName, @Local(name = "success") boolean success) {
         if (success) {
             String summonerName = source.isPlayer() ? source.getPlayer().nameAndId().name() : null;
             boolean privateBot = SculkCarpetSettings.fakePlayerDefaultPrivate;

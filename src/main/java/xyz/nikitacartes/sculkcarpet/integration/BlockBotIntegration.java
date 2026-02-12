@@ -1,11 +1,11 @@
-package xyz.nikitacartes.skulkcarpet.integration;
+package xyz.nikitacartes.sculkcarpet.integration;
 
 import io.github.quiltservertools.blockbotdiscord.extensions.linking.LinkingExtensionKt;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.players.NameAndId;
-import xyz.nikitacartes.skulkcarpet.SculkCarpetSettings;
+import xyz.nikitacartes.sculkcarpet.SculkCarpetSettings;
 
 /**
  * Integration with BlockBot Discord mod for player whitelist verification.

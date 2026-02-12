@@ -27,9 +27,9 @@ jobs:
           path: |
             ~/.gradle/caches
             ~/.gradle/wrapper
-          key: "${{ runner.os }}-skulkcarpet-${{ hashFiles('**/*.gradle*') }}"
+          key: "${{ runner.os }}-sculkcarpet-${{ hashFiles('**/*.gradle*') }}"
           restore-keys: |
-            ${{ runner.os }}-skulkcarpet-
+            ${{ runner.os }}-sculkcarpet-
 
       - name: Build
         run: ./gradlew build

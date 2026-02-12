@@ -1,10 +1,10 @@
-package xyz.nikitacartes.skulkcarpet.integration;
+package xyz.nikitacartes.sculkcarpet.integration;
 
 import net.fabricmc.loader.api.FabricLoader;
 import net.luckperms.api.LuckPerms;
 import net.luckperms.api.LuckPermsProvider;
 import net.luckperms.api.node.types.InheritanceNode;
-import xyz.nikitacartes.skulkcarpet.SculkCarpetSettings;
+import xyz.nikitacartes.sculkcarpet.SculkCarpetSettings;
 
 import java.util.UUID;
 

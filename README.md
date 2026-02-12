@@ -1,4 +1,4 @@
-# Skulk Carpet
+# Sculk Carpet
 
 ## Info
-Carpet addon that was specifically made for Skulk SMP.
+Carpet addon that was specifically made for Sculk SMP.

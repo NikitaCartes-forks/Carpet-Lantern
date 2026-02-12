@@ -1,4 +1,4 @@
-package xyz.nikitacartes.skulkcarpet.mixin.carpet;
+package xyz.nikitacartes.sculkcarpet.mixin.carpet;
 
 import carpet.commands.PlayerCommand;
 import com.mojang.brigadier.context.CommandContext;

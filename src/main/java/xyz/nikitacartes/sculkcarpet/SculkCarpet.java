@@ -1,4 +1,4 @@
-package xyz.nikitacartes.skulkcarpet;
+package xyz.nikitacartes.sculkcarpet;
 
 import carpet.CarpetExtension;
 import carpet.CarpetServer;
@@ -27,7 +27,7 @@ public class SculkCarpet implements CarpetExtension, ModInitializer {
 
 	@Override
 	public Map<String, String> canHasTranslations(String lang) {
-		InputStream langFile = SculkCarpet.class.getClassLoader().getResourceAsStream("assets/skulkcarpet/lang/%s.json".formatted(lang));
+		InputStream langFile = SculkCarpet.class.getClassLoader().getResourceAsStream("assets/sculkcarpet/lang/%s.json".formatted(lang));
 		if (langFile == null) {
 			// we don't have that language
 			return Collections.emptyMap();

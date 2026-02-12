@@ -1,4 +1,4 @@
-package xyz.nikitacartes.skulkcarpet;
+package xyz.nikitacartes.sculkcarpet;
 
 import java.util.HashSet;
 import java.util.Set;

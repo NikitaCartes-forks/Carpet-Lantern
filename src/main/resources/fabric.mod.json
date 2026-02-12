@@ -1,26 +1,26 @@
 {
   "schemaVersion": 1,
-  "id": "skulkcarpet",
+  "id": "sculkcarpet",
   "version": "${version}",
 
   "name": "Sculk Carpet Mod",
   "description": "Modification for Carpet made for Sculk SMP",
   "authors": [
-    "ForwarD NerN",
-    "NikitaCartes"
+    "NikitaCartes",
+    "ForwarD NerN"
   ],
 
   "license": "MIT",
-  "icon": "assets/skulkcarpet/icon.png",
+  "icon": "assets/sculkcarpet/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "xyz.nikitacartes.skulkcarpet.SculkCarpet"
+      "xyz.nikitacartes.sculkcarpet.SculkCarpet"
     ]
   },
   "mixins": [
-    "skulkcarpet.mixins.json"
+    "sculkcarpet.mixins.json"
   ],
 
   "depends": {
