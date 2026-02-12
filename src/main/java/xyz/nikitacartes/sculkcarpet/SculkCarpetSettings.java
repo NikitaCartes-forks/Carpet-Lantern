@@ -49,6 +49,11 @@ public class SculkCarpetSettings {
     @Rule(
             categories = {SCULK, FEATURE}
     )
+    public static boolean fakePlayerRemoveDefaultGroup = false;
+
+    @Rule(
+            categories = {SCULK, FEATURE}
+    )
     public static boolean fakePlayerDefaultPrivate = false;
 
     @Rule(

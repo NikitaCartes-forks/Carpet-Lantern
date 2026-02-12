@@ -60,6 +60,12 @@ public class LuckPermsHelper {
             InheritanceNode node = InheritanceNode.builder(groupName).build();
 
             user.data().add(node);
+
+            if (SculkCarpetSettings.fakePlayerRemoveDefaultGroup && !"default".equalsIgnoreCase(groupName)) {
+                InheritanceNode defaultNode = InheritanceNode.builder("default").build();
+                user.data().remove(defaultNode);
+            }
+
             api.getUserManager().saveUser(user);
         });
     }
@@ -88,6 +94,12 @@ public class LuckPermsHelper {
             InheritanceNode node = InheritanceNode.builder(groupName).build();
             
             user.data().remove(node);
+
+            // if (SculkCarpetSettings.fakePlayerRemoveDefaultGroup && !"default".equalsIgnoreCase(groupName)) {
+            //     InheritanceNode defaultNode = InheritanceNode.builder("default").build();
+            //     user.data().add(defaultNode);
+            // }
+
             api.getUserManager().saveUser(user);
         });
     }
