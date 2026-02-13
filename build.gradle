@@ -19,6 +19,17 @@ repositories {
 	maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
 	mavenCentral()
 	maven { url 'https://repo.lucko.me' }
+    exclusiveContent {
+        forRepository {
+            maven {
+                name = "Modrinth"
+                url = "https://api.modrinth.com/maven"
+            }
+        }
+        filter {
+            includeGroup "maven.modrinth"
+        }
+    }
 }
 
 dependencies {
@@ -26,15 +37,14 @@ dependencies {
 	minecraft "com.mojang:minecraft:${project.minecraft_version}"
 	mappings loom.officialMojangMappings()
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-	modImplementation "carpet:fabric-carpet:${project.carpet_version}"
-	modImplementation "me.lucko:fabric-permissions-api:${project.fabric_permissions_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	compileOnly "net.luckperms:api:${project.luckperms_api_version}"
-	compileOnly "com.google.code.findbugs:jsr305:${project.jsr305_version}"
-	// Uncomment the following line to enable the deprecated Fabric API modules. 
-	// These are included in the Fabric API production distribution and allow you to update your mod to the latest modules at a later more convenient time.
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+    modImplementation "me.lucko:fabric-permissions-api:${project.fabric_permissions_version}"
+    compileOnly "net.luckperms:api:${project.luckperms_api_version}"
 
-	// modImplementation "net.fabricmc.fabric-api:fabric-api-deprecated:${project.fabric_version}"
+	modImplementation "carpet:fabric-carpet:${project.carpet_version}"
+    modImplementation "maven.modrinth:blockbot:${project.blockbot_version}"
+
+	compileOnly "org.jetbrains.kotlin:kotlin-stdlib:${project.kotlin_version}"
 }
 
 processResources {
@@ -61,8 +71,6 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${project.archives_base_name}"}
 	}
-	// Exclude BlockBot stub classes - at runtime, the real BlockBot mod provides these
-	exclude('io/github/quiltservertools/blockbotdiscord/**')
 }
 
 // configure the maven publication

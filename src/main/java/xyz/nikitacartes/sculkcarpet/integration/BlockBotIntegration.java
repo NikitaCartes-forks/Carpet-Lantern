@@ -1,5 +1,7 @@
 package xyz.nikitacartes.sculkcarpet.integration;
 
+import io.github.quiltservertools.blockbotdiscord.config.LinkingSpec;
+import io.github.quiltservertools.blockbotdiscord.config.ConfigKt;
 import io.github.quiltservertools.blockbotdiscord.extensions.linking.LinkingExtensionKt;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.network.chat.Component;
@@ -16,7 +18,7 @@ public class BlockBotIntegration {
     
     // Cache the mod loaded check to avoid repeated FabricLoader calls
     private static final boolean BLOCKBOT_LOADED = FabricLoader.getInstance().isModLoaded("blockbot-discord");
-    
+
     /**
      * Checks if a player with the given GameProfile is whitelisted via BlockBot.
      * 
@@ -37,10 +39,20 @@ public class BlockBotIntegration {
         }
 
         try {
+            // If BlockBot's linking is not enabled or not required, allow bot spawning
+            if (!shouldCheckLinking()) {
+                return false;
+            }
+
             Component message = LinkingExtensionKt.canJoin(profile, server);
             return message == null;
         } catch (Exception e) {
+            System.out.println("Failed to check BlockBot linking status for player " + profile.name() + ": " + e.getMessage());
             return false;
         }
+    }
+
+    private static boolean shouldCheckLinking() {
+        return ConfigKt.getConfig().get(LinkingSpec.INSTANCE.getEnabled()) && ConfigKt.getConfig().get(LinkingSpec.INSTANCE.getRequireLinking());
     }
 }
