@@ -65,4 +65,14 @@ public class SculkCarpetSettings {
             categories = {SCULK, FEATURE}
     )
     public static boolean fakePlayerXpDropFix = false;
+
+    @Rule(
+            categories = {SCULK, FEATURE}
+    )
+    public static String botNamePrefix = "";
+
+    @Rule(
+            categories = {SCULK, FEATURE}
+    )
+    public static String botNameSuffix = "";
 }

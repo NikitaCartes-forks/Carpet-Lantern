@@ -4,7 +4,8 @@
   "carpet.rule.fakePlayerLuckPermsGroup.desc": "The LuckPerms group to assign to spawned fake players.",
   "carpet.rule.fakePlayerRemoveDefaultGroup.desc": "Whether to remove the default group from the fake player if another group is assigned.",
   "carpet.rule.fakePlayerDefaultPrivate.desc": "Whether fake players are spawned as private by default.",
-  "carpet.rule.playerCommandBlockBotVerification.desc": "If BlockBot is installed, prevents non-ops from spawning fake players with names of whitelisted/linked players."
   "carpet.rule.playerCommandBlockBotVerification.desc": "If BlockBot is installed, prevents non-ops from spawning fake players with names of whitelisted/linked players.",
   "carpet.rule.fakePlayerXpDropFix.desc": "Clears fake player experience when killed to prevent XP duping.",
+  "carpet.rule.botNamePrefix.desc": "Prefix to strip from bot names when checking whitelist permissions.",
+  "carpet.rule.botNameSuffix.desc": "Suffix to strip from bot names when checking whitelist permissions."
 }

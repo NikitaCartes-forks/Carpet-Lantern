@@ -108,7 +108,24 @@ public class PlayerCommandMixin {
         }
 
         // BlockBot integration: prevent spawning bots with names of whitelisted players
-        if (BlockBotIntegration.isPlayerWhitelisted(profile, server) && !Permissions.check(source, "carpet.bypassBlockBot", 2)) {
+        boolean isWhitelisted = BlockBotIntegration.isPlayerWhitelisted(profile, server);
+
+        if (!isWhitelisted && (!SculkCarpetSettings.botNamePrefix.isEmpty() || !SculkCarpetSettings.botNameSuffix.isEmpty())) {
+            String name = profile.name();
+            if (name.startsWith(SculkCarpetSettings.botNamePrefix)) {
+                name = name.substring(SculkCarpetSettings.botNamePrefix.length());
+            }
+            if (name.endsWith(SculkCarpetSettings.botNameSuffix)) {
+                name = name.substring(0, name.length() - SculkCarpetSettings.botNameSuffix.length());
+            }
+
+            if (!name.isEmpty() && !name.equals(profile.name())) {
+                NameAndId strippedProfile = new NameAndId(profile.id(), name);
+                isWhitelisted = BlockBotIntegration.isPlayerWhitelisted(strippedProfile, server);
+            }
+        }
+
+        if (isWhitelisted && !Permissions.check(source, "carpet.bypassBlockBot", 2)) {
             Messenger.m(source, "r BlockBot whitelisted players can only be spawned by operators or permission holders");
             cir.setReturnValue(true);
         }
