@@ -29,6 +29,10 @@ public class BotCapStorage {
                 .map(bot -> !bot.isPrivate() || playerName.equalsIgnoreCase(bot.getSummonerName())).orElse(false);
     }
 
+    public static boolean checkBotName(String botName) {
+        return BOTS.stream().anyMatch(bot -> bot.getName().equalsIgnoreCase(botName));
+    }
+
     public static void decrement(String botName) {
         BOTS.removeIf(bot -> bot.getName().equalsIgnoreCase(botName));
     }

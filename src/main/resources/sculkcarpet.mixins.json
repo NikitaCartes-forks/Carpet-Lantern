@@ -17,7 +17,8 @@
     "carpet.CommandsMixin$SpawnCommandMixin",
     "carpet.EntityPlayerMPFakeMixin",
     "carpet.PlayerCommandMixin",
-    "carpet.PlayerCommandSpawnInvoker"
+    "carpet.PlayerCommandSpawnInvoker",
+    "server.PlayerListMixin"
   ],
   "client": [
   ],

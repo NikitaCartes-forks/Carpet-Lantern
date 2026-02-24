@@ -69,6 +69,11 @@ public class SculkCarpetSettings {
     @Rule(
             categories = {SCULK, FEATURE}
     )
+    public static boolean disablePlayerJoinAsBot = false;
+
+    @Rule(
+            categories = {SCULK, FEATURE}
+    )
     public static String botNamePrefix = "";
 
     @Rule(
