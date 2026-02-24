@@ -60,4 +60,9 @@ public class SculkCarpetSettings {
             categories = {SCULK, FEATURE}
     )
     public static boolean playerCommandBlockBotVerification = false;
+
+    @Rule(
+            categories = {SCULK, FEATURE}
+    )
+    public static boolean fakePlayerXpDropFix = false;
 }

@@ -13,6 +13,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import xyz.nikitacartes.sculkcarpet.BotCapStorage;
+import xyz.nikitacartes.sculkcarpet.SculkCarpetSettings;
 import xyz.nikitacartes.sculkcarpet.integration.LuckPermsHelper;
 
 //Handle decrement when a fake player is killed and LuckPerms group management.
@@ -30,6 +31,11 @@ public abstract class EntityPlayerMPFakeMixin extends ServerPlayer {
 
     @Inject(method = "kill(Lnet/minecraft/network/chat/Component;)V", at = @At("TAIL"))
     private void sculkcarpet$decrementOnKill(Component reason, CallbackInfo ci) {
+        if (SculkCarpetSettings.fakePlayerXpDropFix) {
+            this.experienceLevel = 0;
+            this.totalExperience = 0;
+            this.experienceProgress = 0.0F;
+        }
         LuckPermsHelper.removeFromGroup(this.getUUID(), this.nameAndId().name());
         BotCapStorage.decrement(this.nameAndId().name());
         ServerPlayConnectionEvents.DISCONNECT.invoker().onPlayDisconnect(this.connection, this.level().getServer());
