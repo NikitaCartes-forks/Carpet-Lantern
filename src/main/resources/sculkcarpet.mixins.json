@@ -18,7 +18,8 @@
     "carpet.EntityPlayerMPFakeMixin",
     "carpet.PlayerCommandMixin",
     "carpet.PlayerCommandSpawnInvoker",
-    "server.PlayerListMixin"
+    "server.PlayerListMixin",
+    "server.ServerPlayerGameModeMixin"
   ],
   "client": [
   ],

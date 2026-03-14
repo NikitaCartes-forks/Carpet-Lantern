@@ -8,5 +8,6 @@
   "carpet.rule.fakePlayerXpDropFix.desc": "Clears fake player experience when killed to prevent XP duping.",
   "carpet.rule.disablePlayerJoinAsBot.desc": "Prevents real players from joining with the name of an active bot.",
   "carpet.rule.botNamePrefix.desc": "Prefix to strip from bot names when checking whitelist permissions.",
-  "carpet.rule.botNameSuffix.desc": "Suffix to strip from bot names when checking whitelist permissions."
+  "carpet.rule.botNameSuffix.desc": "Suffix to strip from bot names when checking whitelist permissions.",
+  "carpet.rule.fakePlayerBlockInteractionDisabledList.desc": "Comma, space, or semicolon separated block ids that fake players must not interact with; blocked interactions are silently skipped."
 }
