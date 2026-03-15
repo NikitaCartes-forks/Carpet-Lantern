@@ -20,7 +20,9 @@
     "carpet.PlayerCommandSpawnInvoker",
     "server.PlayerListMixin",
     "server.PlayerMixin",
-    "server.ServerPlayerGameModeMixin"
+    "server.ServerPlayerGameModeMixin",
+    "server.TrialSpawnerStateDataMixin",
+    "server.VaultBlockMixin"
   ],
   "client": [
   ],
