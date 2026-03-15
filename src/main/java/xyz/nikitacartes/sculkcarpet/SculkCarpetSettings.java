@@ -8,21 +8,23 @@ import carpet.utils.Messenger;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Locale;
-import java.util.Objects;
 import java.util.Set;
+import java.util.function.Predicate;
 
 import static carpet.api.settings.RuleCategory.*;
 
 public class SculkCarpetSettings {
     public static final String SCULK = "sculk";
-    private static final String BLOCK_INTERACTION_DISABLED_LIST_SPLITTER = "[,;\\s]+";
-    private static volatile String cachedFakePlayerBlockInteractionDisabledList = "";
+    private static final String LIST_SPLITTER = "[,;\\s]+";
+
     private static volatile Set<ResourceLocation> cachedFakePlayerBlockInteractionDisabledSet = Set.of();
+    private static volatile Set<ResourceLocation> cachedFakePlayerEntityInteractionDisabledSet = Set.of();
 
     private static class MaxBotCapValidator extends Validator<Integer> {
         @Override
@@ -33,25 +35,6 @@ public class SculkCarpetSettings {
         @Override
         public String description() {
             return "You must choose a value from -1 (disabled) to 20M";
-        }
-    }
-
-    private static class BlockInteractionDisabledListValidator extends Validator<String> {
-        @Override
-        public String validate(CommandSourceStack source, CarpetRule<String> currentRule, String newValue, String string) {
-            try {
-                return normalizeBlockInteractionDisabledList(newValue);
-            } catch (IllegalArgumentException exception) {
-                if (source != null) {
-                    Messenger.m(source, "r " + exception.getMessage());
-                }
-                return null;
-            }
-        }
-
-        @Override
-        public String description() {
-            return "Use a comma, space, or semicolon separated list of block ids, e.g. minecraft:chest,minecraft:hopper";
         }
     }
 
@@ -113,6 +96,24 @@ public class SculkCarpetSettings {
     )
     public static String botNameSuffix = "";
 
+    private static class BlockInteractionDisabledListValidator extends Validator<String> {
+        @Override
+        public String validate(CommandSourceStack source, CarpetRule<String> currentRule, String newValue, String string) {
+            try {
+                cachedFakePlayerBlockInteractionDisabledSet = parseIdList(newValue, BuiltInRegistries.BLOCK::containsKey);
+                return newValue;
+            } catch (IllegalArgumentException exception) {
+                if (source != null) Messenger.m(source, "r " + exception.getMessage());
+                return null;
+            }
+        }
+
+        @Override
+        public String description() {
+            return "Use a comma, space, or semicolon separated list of block ids, e.g. minecraft:chest,minecraft:hopper";
+        }
+    }
+
     @Rule(
             strict = false,
             categories = {SCULK, FEATURE},
@@ -120,71 +121,63 @@ public class SculkCarpetSettings {
     )
     public static String fakePlayerBlockInteractionDisabledList = "";
 
-    public static boolean isFakePlayerBlockInteractionDisabled(BlockState state) {
-        if (state == null) {
-            return false;
-        }
-        return getFakePlayerBlockInteractionDisabledSet().contains(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
-    }
-
-    private static Set<ResourceLocation> getFakePlayerBlockInteractionDisabledSet() {
-        String ruleValue = fakePlayerBlockInteractionDisabledList;
-        if (Objects.equals(cachedFakePlayerBlockInteractionDisabledList, ruleValue)) {
-            return cachedFakePlayerBlockInteractionDisabledSet;
-        }
-
-        synchronized (SculkCarpetSettings.class) {
-            if (!Objects.equals(cachedFakePlayerBlockInteractionDisabledList, ruleValue)) {
-                cachedFakePlayerBlockInteractionDisabledSet = parseBlockInteractionDisabledList(ruleValue, false);
-                cachedFakePlayerBlockInteractionDisabledList = ruleValue;
-            }
-            return cachedFakePlayerBlockInteractionDisabledSet;
-        }
-    }
-
-    private static String normalizeBlockInteractionDisabledList(String ruleValue) {
-        Set<ResourceLocation> disabledBlocks = parseBlockInteractionDisabledList(ruleValue, true);
-        if (disabledBlocks.isEmpty()) {
-            return "";
-        }
-        return String.join(",", disabledBlocks.stream().map(ResourceLocation::toString).toList());
-    }
-
-    private static Set<ResourceLocation> parseBlockInteractionDisabledList(String ruleValue, boolean failOnInvalid) {
-        if (ruleValue == null || ruleValue.isBlank()) {
-            return Set.of();
-        }
-
-        LinkedHashSet<ResourceLocation> disabledBlocks = new LinkedHashSet<>();
-        for (String entry : ruleValue.split(BLOCK_INTERACTION_DISABLED_LIST_SPLITTER)) {
-            if (entry.isBlank()) {
-                continue;
-            }
-
-            String normalizedEntry = entry.trim().toLowerCase(Locale.ENGLISH);
-            ResourceLocation blockId;
+    private static class EntityInteractionDisabledListValidator extends Validator<String> {
+        @Override
+        public String validate(CommandSourceStack source, CarpetRule<String> currentRule, String newValue, String string) {
             try {
-                blockId = ResourceLocation.parse(normalizedEntry);
-            } catch (RuntimeException exception) {
-                if (failOnInvalid) {
-                    throw new IllegalArgumentException("Invalid block id: " + entry);
-                }
-                continue;
+                cachedFakePlayerEntityInteractionDisabledSet = parseIdList(newValue, BuiltInRegistries.ENTITY_TYPE::containsKey);
+                return newValue;
+            } catch (IllegalArgumentException exception) {
+                if (source != null) Messenger.m(source, "r " + exception.getMessage());
+                return null;
             }
-
-            if (!BuiltInRegistries.BLOCK.containsKey(blockId)) {
-                if (failOnInvalid) {
-                    throw new IllegalArgumentException("Unknown block id: " + entry);
-                }
-                continue;
-            }
-
-            disabledBlocks.add(blockId);
         }
 
-        if (disabledBlocks.isEmpty()) {
-            return Set.of();
+        @Override
+        public String description() {
+            return "Use a comma, space, or semicolon separated list of entity type ids, e.g. minecraft:villager,minecraft:cow";
         }
-        return Collections.unmodifiableSet(disabledBlocks);
+    }
+
+    @Rule(
+            strict = false,
+            categories = {SCULK, FEATURE},
+            validators = EntityInteractionDisabledListValidator.class
+    )
+    public static String fakePlayerEntityInteractionDisabledList = "";
+
+    public static boolean isFakePlayerBlockInteractionDisabled(BlockState state) {
+        if (state == null) return false;
+        return cachedFakePlayerBlockInteractionDisabledSet.contains(BuiltInRegistries.BLOCK.getKey(state.getBlock()));
+    }
+
+    public static boolean isFakePlayerEntityInteractionDisabled(Entity entity) {
+        if (entity == null) return false;
+        return cachedFakePlayerEntityInteractionDisabledSet.contains(BuiltInRegistries.ENTITY_TYPE.getKey(entity.getType()));
+    }
+
+    private static Set<ResourceLocation> parseIdList(String ruleValue, Predicate<ResourceLocation> registryCheck) {
+        if (ruleValue == null || ruleValue.isBlank()) return Set.of();
+
+        LinkedHashSet<ResourceLocation> ids = new LinkedHashSet<>();
+        for (String entry : ruleValue.split(LIST_SPLITTER)) {
+            if (entry.isBlank()) continue;
+
+            String normalized = entry.trim().toLowerCase(Locale.ENGLISH);
+            ResourceLocation id;
+            try {
+                id = ResourceLocation.parse(normalized);
+            } catch (RuntimeException e) {
+                throw new IllegalArgumentException("Invalid id: " + entry);
+            }
+
+            if (!registryCheck.test(id)) {
+                throw new IllegalArgumentException("Unknown id: " + entry);
+            }
+
+            ids.add(id);
+        }
+
+        return ids.isEmpty() ? Set.of() : Collections.unmodifiableSet(ids);
     }
 }

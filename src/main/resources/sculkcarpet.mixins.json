@@ -19,6 +19,7 @@
     "carpet.PlayerCommandMixin",
     "carpet.PlayerCommandSpawnInvoker",
     "server.PlayerListMixin",
+    "server.PlayerMixin",
     "server.ServerPlayerGameModeMixin"
   ],
   "client": [
